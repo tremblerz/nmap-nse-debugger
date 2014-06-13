@@ -163,6 +163,37 @@ static int key_was_pressed (lua_State *L)
   return 1;
 }
 
+static int l_read_tty (lua_State *L) {
+  const int max_bytes = luaL_checkint(L, 1);
+  luaL_Buffer b;
+  char *buff = new char[max_bytes];
+  int bytes_read = tty_read(buff, max_bytes);
+  if (bytes_read > 0) {
+    luaL_buffinitsize(L, &b, bytes_read);
+    luaL_addlstring(&b, buff, bytes_read);  
+    luaL_pushresultsize(&b, bytes_read-1);
+  } else {
+    lua_pushnil(L);
+  }
+  delete[] buff;   
+  return 1;
+}
+
+static int l_debugger_enabled(lua_State *L) {
+  if (o.nse_debugger_enabled)
+    lua_pushboolean(L, true);
+  else
+    lua_pushboolean(L, false);
+  return 1;
+}
+
+static int l_set_debugger(lua_State *L) {
+  bool val = lua_toboolean(L,1);
+  o.nse_debugger_enabled = val;
+  set_tty_echo(val);
+  return 0;
+}
+
 static int scp (lua_State *L)
 {
   static const char * const ops[] = {"printStats", "printStatsIfNecessary",
@@ -200,13 +231,13 @@ static int scan_progress_meter (lua_State *L)
    scripts. */
 static int l_log_write(lua_State *L)
 {
-  static const char *const ops[] = {"stdout", "stderr", NULL};
-  static const int logs[] = {LOG_STDOUT, LOG_STDERR};
+  static const char *const ops[] = {"stdout", "stderr", "debugout", "debugerr", NULL};
+  static const int logs[] = {LOG_STDOUT, LOG_STDERR, LOG_DEBUGOUT, LOG_DEBUGERR};
   int log = logs[luaL_checkoption(L, 1, NULL, ops)];
   log_write(log, "%s", luaL_checkstring(L, 2));
   return 0;
 }
-
+ 
 static int l_xml_start_tag(lua_State *L)
 {
   const char *name;
@@ -355,6 +386,9 @@ static void open_cnse (lua_State *L)
     {"fetchfile_absolute", fetchfile_absolute},
     {"fetchscript", fetchscript},
     {"key_was_pressed", key_was_pressed},
+    {"read_tty", l_read_tty},
+    {"debugger_enabled", l_debugger_enabled},
+    {"set_debugger", l_set_debugger},
     {"scan_progress_meter", scan_progress_meter},
     {"timedOut", timedOut},
     {"startTimeOutClock", startTimeOutClock},

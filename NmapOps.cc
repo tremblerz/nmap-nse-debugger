@@ -359,6 +359,7 @@ void NmapOps::Initialize() {
   numhosts_up = 0;
   numhosts_scanning = 0;
   noninteractive = false;
+  nse_debugger_enabled = false;
   current_scantype = STYPE_UNKNOWN;
   ipoptions = NULL;
   ipoptionslen = 0;

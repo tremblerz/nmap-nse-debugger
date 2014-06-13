@@ -307,7 +307,7 @@ bool keyWasPressed()
   static struct timeval stats_time = { 0 };
   int c;
 
-  if (o.noninteractive)
+  if (o.noninteractive || o.nse_debugger_enabled)
     return false;
 
   if ((c = tty_getchar()) >= 0) {
@@ -327,6 +327,10 @@ bool keyWasPressed()
     } else if (c == 'D') {
        if (o.debugging > 0) o.debugging--;
        log_write(LOG_STDOUT, "Debugging Decreased to %d.\n", o.debugging);
+    } else if (c == 'n') {
+       o.nse_debugger_enabled = true;
+       log_write(LOG_DEBUGOUT, "NSE Debugger enabled.\n>>");
+       set_tty_echo(true);
     } else if (c == 'p') {
        o.setPacketTrace(true);
        log_write(LOG_STDOUT, "Packet Tracing enabled.\n");
@@ -373,4 +377,38 @@ bool keyWasPressed()
   }
 
   return false;
+}
+
+int tty_read(char *buffer, int length) { 
+  int num_chars;
+#ifdef __CYGWIN32__
+  fd_set set;
+  struct timeval tv;
+#endif
+
+  if (tty_fd && tcgetpgrp(tty_fd) == getpgrp()) {
+#ifdef __CYGWIN32__
+    FD_ZERO(&set); FD_SET(tty_fd, &set);
+    tv.tv_sec = 0; tv.tv_usec = 0;
+    if (select(tty_fd + 1, &set, NULL, NULL, &tv) <= 0)
+    return -1;
+#endif
+    num_chars = read(tty_fd, buffer, length);
+    return num_chars;
+  }  
+  return -1;     
+} 
+
+void set_tty_echo(bool echo_on) {
+  if (!tty_fd) return;
+
+  struct termios ti;
+  tcgetattr(tty_fd, &ti);
+  if (echo_on) {
+        ti.c_lflag |= ECHO;
+  }
+  else {
+        ti.c_lflag &= ~( ECHO);
+  }
+  tcsetattr(tty_fd, TCSANOW, &ti); 
 }

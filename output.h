@@ -140,7 +140,9 @@
 #define LOG_STDOUT 1024
 #define LOG_STDERR 2048
 #define LOG_SKID_NOXLT 4096
-#define LOG_MAX LOG_SKID_NOXLT /* The maximum log type value */
+#define LOG_DEBUGOUT 8192
+#define LOG_DEBUGERR 16384
+#define LOG_MAX LOG_DEBUGERR /* The maximum log type value */
 
 #define LOG_PLAIN LOG_NORMAL|LOG_SKID|LOG_STDOUT
 

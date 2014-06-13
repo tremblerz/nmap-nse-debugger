@@ -958,12 +958,31 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 
     switch (logtype) {
       case LOG_STDOUT:
-        vfprintf(o.nmap_stdout, fmt, ap);
-        break;
+        if (o.nse_debugger_enabled) break;
+        else {
+          vfprintf(o.nmap_stdout, fmt, ap);
+          break;
+        }
 
       case LOG_STDERR:
-        fflush(stdout); // Otherwise some systems will print stderr out of order
-        vfprintf(stderr, fmt, ap);
+        if (o.nse_debugger_enabled) break;
+        else {
+          fflush(stdout); // Otherwise some systems will print stderr out of order
+          vfprintf(stderr, fmt, ap);
+          break;
+        }
+
+      case LOG_DEBUGOUT:
+        if (o.nse_debugger_enabled) 
+          vfprintf(o.nmap_stdout, fmt, ap);
+          fflush(stdout);
+        break;
+
+      case LOG_DEBUGERR:
+        if (o.nse_debugger_enabled) {
+          fflush(stdout); // Otherwise some systems will print stderr out of order
+          vfprintf(stderr, fmt, ap);
+        }
         break;
 
       case LOG_SKID_NOXLT:
