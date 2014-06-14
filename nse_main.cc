@@ -164,19 +164,14 @@ static int key_was_pressed (lua_State *L)
 }
 
 static int l_read_tty (lua_State *L) {
-  const int max_bytes = luaL_checkint(L, 1);
-  luaL_Buffer b;
-  char *buff = new char[max_bytes];
-  int bytes_read = tty_read(buff, max_bytes);
+  char buf[4096];
+  int bytes_read = tty_read(buf, sizeof(buf));
   if (bytes_read > 0) {
-    luaL_buffinitsize(L, &b, bytes_read);
-    luaL_addlstring(&b, buff, bytes_read);  
-    luaL_pushresultsize(&b, bytes_read-1);
+    lua_pushlstring(L, buf, bytes_read);
+    return 1;
   } else {
-    lua_pushnil(L);
+    return nseU_safeerror(L, "%s", strerror(errno));
   }
-  delete[] buff;   
-  return 1;
 }
 
 static int l_debugger_enabled(lua_State *L) {
@@ -188,9 +183,8 @@ static int l_debugger_enabled(lua_State *L) {
 }
 
 static int l_set_debugger(lua_State *L) {
-  bool val = lua_toboolean(L,1);
-  o.nse_debugger_enabled = val;
-  set_tty_echo(val);
+  o.nse_debugger_enabled = lua_toboolean(L,1);
+  set_tty_echo(o.nse_debugger_enabled);
   return 0;
 }
 
