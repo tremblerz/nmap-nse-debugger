@@ -134,6 +134,6 @@ void tty_init();
    calling method should print a status message */
 bool keyWasPressed();
 
-int tty_read(char* buffer, int length);
+int tty_read(char *buffer, size_t length);
 
-void set_tty_echo(bool echo_on);
+void set_tty_echo(int echo_on);
