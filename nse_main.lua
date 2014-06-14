@@ -218,13 +218,13 @@ end
 
 --- 
 -- Writes to stdout if NSE debugger is enabled
-function debug_out(fmt, ...)
+local function debug_out(fmt, ...)
   log_write_raw("debugout", format(fmt, ...))
 end
 
 ---
 -- Writes to stderr if NSE debugger is enabled
-function debug_err(fmt, ...)
+local function debug_err(fmt, ...)
   log_write_raw("debugerr", format(fmt, ...))
 end
 
@@ -233,23 +233,21 @@ end
 -- It does this by reading bytes incrementally, and returning nil until it has 
 -- collected an entire line to return. Meant to be called when NmapOpts.nse_dubugger_active 
 -- is set because otherwise calls to keywaspressed() will result in the tty being flushed. 
+local readline;
 do
   local buff = ""
   function readline()
     if not find(buff, "\n") then
-      local bytes = cnse.read_tty(128) 
+      local bytes = cnse.read_tty() 
       if bytes then
         buff = buff .. bytes 
       end
     end
-    if find(buff, "\n") then
-      local index = find(buff, "\n")
-      local line = sub(buff, 1, index)
-      buff = sub(buff, index+1, -1)
-      return line
-    else
-      return nil
+    local line, leftover = match(buff, "(.-)\n(.*)")
+    if line then
+      buf = leftover
     end
+    return line
   end
 end
 
@@ -989,6 +987,7 @@ local function run (threads_iter, hosts)
     end
 
     local nr, nw = table_size(running), table_size(waiting);
+    -- TODO support tab-completion (requires turning echo off), EOF for "exit", "help"
     if cnse.debugger_enabled() then
       local line = readline()
       if line then
