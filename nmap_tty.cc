@@ -379,7 +379,7 @@ bool keyWasPressed()
   return false;
 }
 
-int tty_read(char *buffer, int length) { 
+int tty_read(char *buffer, size_t length) { 
   int num_chars;
 #ifdef __CYGWIN32__
   fd_set set;
@@ -399,7 +399,7 @@ int tty_read(char *buffer, int length) {
   return -1;     
 } 
 
-void set_tty_echo(bool echo_on) {
+void set_tty_echo(int echo_on) {
   if (!tty_fd) return;
 
   struct termios ti;
