@@ -245,7 +245,7 @@ do
     end
     local line, leftover = match(buff, "(.-)\n(.*)")
     if line then
-      buf = leftover
+      buff = leftover
     end
     return line
   end
@@ -1009,12 +1009,13 @@ local function run (threads_iter, hosts)
           if script_to_kill then
             for co, thread in pairs(all) do
               if thread.id == script_to_kill then
-                all[co], waiting[co], running[co], pending[co] = nil, nil, nil, nil
+                all[co], waiting[co], running[co], pending[co], num_threads = nil, nil, nil, nil, num_threads-1;
                 debug_out("Killed script %s: %s\n", script_to_kill, co)
+                thread:close(timeouts, "killed");
               end
             end 
           end
-        else
+        elseif cmd then
           debug_out("Command not recognized: '" .. cmd .. "'\n")
         end
         debug_out(">>")
