@@ -131,17 +131,17 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
-#define LOG_NUM_FILES 4 /* # of values that actual files (they must come first */
-#define LOG_FILE_MASK 15 /* The mask for log types in the file array */
-#define LOG_NORMAL 1
-#define LOG_MACHINE 2
-#define LOG_SKID 4
-#define LOG_XML 8
-#define LOG_STDOUT 1024
-#define LOG_STDERR 2048
-#define LOG_SKID_NOXLT 4096
-#define LOG_DEBUGOUT 8192
-#define LOG_DEBUGERR 16384
+#define LOG_NUM_FILES       4 /* # of values that actual files (they must come first). */
+#define LOG_FILE_MASK  (0x0f) /* The mask for log types in the file array. */
+#define LOG_NORMAL     (1<<0)
+#define LOG_MACHINE    (1<<1)
+#define LOG_SKID       (1<<2)
+#define LOG_XML        (1<<3)
+#define LOG_STDOUT     (1<<10)
+#define LOG_STDERR     (1<<11)
+#define LOG_SKID_NOXLT (1<<12)
+#define LOG_DEBUGOUT   (1<<13)
+#define LOG_DEBUGERR   (1<<14)
 #define LOG_MAX LOG_DEBUGERR /* The maximum log type value */
 
 #define LOG_PLAIN LOG_NORMAL|LOG_SKID|LOG_STDOUT
