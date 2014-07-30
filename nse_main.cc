@@ -165,7 +165,7 @@ static int key_was_pressed (lua_State *L)
 
 static int l_read_tty (lua_State *L) {
   char buf[4096];
-  int bytes_read = tty_read(buf, sizeof(buf));
+  ssize_t bytes_read = tty_read(buf, sizeof(buf));
   if (bytes_read > 0) {
     lua_pushlstring(L, buf, bytes_read);
     return 1;

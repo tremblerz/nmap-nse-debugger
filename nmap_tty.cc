@@ -379,8 +379,7 @@ bool keyWasPressed()
   return false;
 }
 
-int tty_read(char *buffer, size_t length) { 
-  int num_chars;
+ssize_t tty_read(char *buffer, size_t length) { 
 #ifdef __CYGWIN32__
   fd_set set;
   struct timeval tv;
@@ -391,10 +390,9 @@ int tty_read(char *buffer, size_t length) {
     FD_ZERO(&set); FD_SET(tty_fd, &set);
     tv.tv_sec = 0; tv.tv_usec = 0;
     if (select(tty_fd + 1, &set, NULL, NULL, &tv) <= 0)
-    return -1;
+        return -1;
 #endif
-    num_chars = read(tty_fd, buffer, length);
-    return num_chars;
+    return read(tty_fd, buffer, length);
   }  
   return -1;     
 } 
